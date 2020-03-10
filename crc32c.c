@@ -263,6 +263,7 @@ uint32_t crc32c(uint32_t crc, void const *buf, size_t len) {
 
 #endif
 
+#if __BYTE_ORDER == __BIG_ENDIAN
 /* Construct table for software CRC-32C little-endian calculation. */
 static pthread_once_t crc32c_once_little = PTHREAD_ONCE_INIT;
 static uint32_t crc32c_table_little[8][256];
@@ -322,6 +323,8 @@ uint32_t crc32c_sw_little(uint32_t crc, void const *buf, size_t len) {
     }
     return ~crc;
 }
+
+#else /* !__BIG_ENDIAN */
 
 /* Swap the bytes in a uint64_t.  (Only for big-endian.) */
 #if defined(__has_builtin) || (defined(__GNUC__) && \
@@ -396,6 +399,7 @@ uint32_t crc32c_sw_big(uint32_t crc, void const *buf, size_t len) {
     }
     return ~crc;
 }
+#endif
 
 /* Table-driven software CRC-32C.  This is about 15 times slower than using the
    hardware instructions.  Determine the endianess of the processor and proceed
@@ -405,9 +409,9 @@ uint32_t crc32c_sw_big(uint32_t crc, void const *buf, size_t len) {
    be used, even if the endianess is changed mid-stream.  (Yes, there are
    processors that permit that -- go figure.) */
 uint32_t crc32c_sw(uint32_t crc, void const *buf, size_t len) {
-    static int const little = 1;
-    if (*(char const *)&little)
-        return crc32c_sw_little(crc, buf, len);
-    else
-        return crc32c_sw_big(crc, buf, len);
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    return crc32c_sw_little(crc, buf, len);
+#else
+    return crc32c_sw_big(crc, buf, len);
+#endif
 }
