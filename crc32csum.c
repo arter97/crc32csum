@@ -22,15 +22,19 @@
 #if defined(__aarch64__)
   #include "crc32c-arm64.c"
   #define crc32c crc32c_arm64
+  #warning "Using crc32c with arm64 accelerations"
 #elif defined(__x86_64__)
   #include "crc32c_x86.c"
   #define crc32c crc32c_x86
+  #warning "Using crc32c with x86 accelerations"
 #elif __BYTE_ORDER == __BIG_ENDIAN
   #include "crc32c_sw_big.c"
   #define crc32c crc32c_sw_big
+  #warning "Using software big endian implementation of crc32c (slow)"
 #else
   #include "crc32c_sw_little.c"
   #define crc32c crc32c_sw_little
+  #warning "Using software little endian implementation of crc32c (slow)"
 #endif
 
 int main(int argc, char **argv)
