@@ -19,12 +19,18 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef __aarch64__
-#include "crc32c-arm64.c"
-#define crc32c crc32c_arm64
+#if defined(__aarch64__)
+  #include "crc32c-arm64.c"
+  #define crc32c crc32c_arm64
+#elif defined(__x86_64__)
+  #include "crc32c_x86.c"
+  #define crc32c crc32c_x86
+#elif __BYTE_ORDER == __BIG_ENDIAN
+  #include "crc32c_sw_big.c"
+  #define crc32c crc32c_sw_big
 #else
-#include "crc32c.c"
-#define crc32c crc32c_hw
+  #include "crc32c_sw_little.c"
+  #define crc32c crc32c_sw_little
 #endif
 
 int main(int argc, char **argv)
