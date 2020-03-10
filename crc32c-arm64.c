@@ -1,10 +1,3 @@
-#include "crc32c.h"
-#include "../os/os.h"
-
-bool crc32c_arm64_available = false;
-
-#ifdef ARCH_HAVE_CRC_CRYPTO
-
 #define CRC32C3X8(ITR) \
 	crc1 = __crc32cd(crc1, *((const uint64_t *)data + 42*1 + (ITR)));\
 	crc2 = __crc32cd(crc2, *((const uint64_t *)data + 42*2 + (ITR)));\
@@ -23,16 +16,14 @@ bool crc32c_arm64_available = false;
 #include <arm_acle.h>
 #include <arm_neon.h>
 
-static bool crc32c_probed;
-
 /*
  * Function to calculate reflected crc with PMULL Instruction
  * crc done "by 3" for fixed input block size of 1024 bytes
  */
-uint32_t crc32c_arm64(unsigned char const *data, unsigned long length)
+uint32_t crc32c_arm64(uint32_t crc, unsigned char const *data, unsigned long length)
 {
 	signed long len = length;
-	uint32_t crc = ~0;
+	crc = ~crc;
 	uint32_t crc0, crc1, crc2;
 
 	/* Load two consts: K1 and K2 */
@@ -73,7 +64,7 @@ uint32_t crc32c_arm64(unsigned char const *data, unsigned long length)
 	}
 
 	if (!(len += 1024))
-		return crc;
+		return ~crc;
 
 	while ((len -= sizeof(uint64_t)) >= 0) {
                 crc = __crc32cd(crc, *(const uint64_t *)data);
@@ -93,15 +84,5 @@ uint32_t crc32c_arm64(unsigned char const *data, unsigned long length)
                 crc = __crc32cb(crc, *(const uint8_t *)data);
         }
 
-	return crc;
+	return ~crc;
 }
-
-void crc32c_arm64_probe(void)
-{
-	if (!crc32c_probed) {
-		crc32c_arm64_available = os_cpu_has(CPU_ARM64_CRC32C);
-		crc32c_probed = true;
-	}
-}
-
-#endif /* ARCH_HAVE_CRC_CRYPTO */
