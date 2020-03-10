@@ -249,29 +249,10 @@ static uint32_t crc32c_hw(uint32_t crc, void const *buf, size_t len) {
     return ~crc0;
 }
 
-/* Check for SSE 4.2.  SSE 4.2 was first supported in Nehalem processors
-   introduced in November, 2008.  This does not check for the existence of the
-   cpuid instruction itself, which was introduced on the 486SL in 1992, so this
-   will fail on earlier x86 processors.  cpuid works on all Pentium and later
-   processors. */
-#define SSE42(have) \
-    do { \
-        uint32_t eax, ecx; \
-        eax = 1; \
-        __asm__("cpuid" \
-                : "=c"(ecx) \
-                : "a"(eax) \
-                : "%ebx", "%edx"); \
-        (have) = (ecx >> 20) & 1; \
-    } while (0)
-
 /* Compute a CRC-32C.  If the crc32 instruction is available, use the hardware
    version.  Otherwise, use the software version. */
 uint32_t crc32c(uint32_t crc, void const *buf, size_t len) {
-    int sse42;
-    
-    SSE42(sse42);
-    return sse42 ? crc32c_hw(crc, buf, len) : crc32c_sw(crc, buf, len);
+    return crc32c_hw(crc, buf, len);
 }
 
 #else /* !__x86_64__ */
