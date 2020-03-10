@@ -79,7 +79,7 @@ static __attribute__((constructor)) void crc32c_init_sw_big(void) {
 
 /* Compute a CRC-32C in software assuming a big-endian architecture,
    constructing the required tables if that hasn't already been done. */
-uint32_t crc32c_sw_big(uint32_t crc, void const *buf, size_t len) {
+static inline uint32_t crc32c_sw_big(uint32_t crc, void const *buf, size_t len) {
     unsigned char const *next = buf;
 
     crc = ~crc;

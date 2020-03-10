@@ -20,7 +20,7 @@
  * Function to calculate reflected crc with PMULL Instruction
  * crc done "by 3" for fixed input block size of 1024 bytes
  */
-uint32_t crc32c_arm64(uint32_t crc, unsigned char const *data, unsigned long length)
+static inline uint32_t crc32c_arm64(uint32_t crc, unsigned char const *data, unsigned long length)
 {
 	signed long len = length;
 	crc = ~crc;

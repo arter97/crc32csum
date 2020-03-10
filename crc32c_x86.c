@@ -147,7 +147,7 @@ static void __attribute__((constructor)) crc32c_init_hw(void) {
 }
 
 /* Compute CRC-32C using the Intel hardware instruction. */
-static uint32_t crc32c_x86(uint32_t crc, void const *buf, size_t len) {
+static inline uint32_t crc32c_x86(uint32_t crc, void const *buf, size_t len) {
     /* pre-process the crc */
     crc = ~crc;
     uint64_t crc0 = crc;            /* 64-bits for crc32q instruction */
